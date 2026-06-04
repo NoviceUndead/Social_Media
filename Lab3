@@ -1,0 +1,18 @@
+import networkx as nx
+
+n = 60          
+p = 0.45        
+
+G = nx.erdos_renyi_graph(n, p)
+
+degrees = [d for _, d in G.degree()]
+avg_degree = sum(degrees) / n
+
+theoretical_avg_degree = p * (n - 1)
+
+print(f"Сгенерирован граф G(n={n}, p={p})")
+print(f"Количество вершин: {G.number_of_nodes()}")
+print(f"Количество рёбер: {G.number_of_edges()}")
+print(f"Средняя степень (экспериментальная): {avg_degree:.4f}")
+print(f"Средняя степень (теоретическая): {theoretical_avg_degree:.4f}")
+print(f"Отклонение: {abs(avg_degree - theoretical_avg_degree):.4f}")
