@@ -1,0 +1,102 @@
+from typing import List, Dict, Tuple, Union
+
+def dijkstra_shortest_paths(
+    graph: Union[List[List[float]], Dict[int, List[Tuple[int, float]]]],
+    start: int,
+    n: int = None
+) -> Tuple[List[float], List[int]]:
+
+    if isinstance(graph, list):
+        n = len(graph)
+        def neighbors(v):
+            for u in range(n):
+                w = graph[v][u]
+                if w != float('inf') and w != 0 and u != v:
+                    yield u, w
+    else:
+        if n is None:
+            n = max(graph.keys()) + 1
+        def neighbors(v):
+            return graph.get(v, [])
+
+    distances = [float('inf')] * n
+    parents = [-1] * n
+    visited = [False] * n
+    distances[start] = 0
+
+    for _ in range(n):
+        u = -1
+        min_dist = float('inf')
+        for i in range(n):
+            if not visited[i] and distances[i] < min_dist:
+                min_dist = distances[i]
+                u = i
+        if u == -1:  
+            break
+        visited[u] = True
+        for v, w in neighbors(u):
+            new_dist = distances[u] + w
+            if new_dist < distances[v]:
+                distances[v] = new_dist
+                parents[v] = u
+
+    return distances, parents
+
+
+def reconstruct_path(parents: List[int], target: int) -> List[int]:
+    """Восстанавливает путь от начальной вершины до target по массиву родителей."""
+    path = []
+    v = target
+    while v != -1:
+        path.append(v)
+        v = parents[v]
+    path.reverse()
+    return path
+
+#Test
+if __name__ == "__main__":
+    INF = float('inf')
+    adjacency_matrix = [
+        [0,   4,   INF, INF, INF, INF, INF, 8,   INF],
+        [4,   0,   8,   INF, INF, INF, INF, 11,  INF],
+        [INF, 8,   0,   7,   INF, 4,   INF, INF, 2],
+        [INF, INF, 7,   0,   9,   14,  INF, INF, INF],
+        [INF, INF, INF, 9,   0,   10,  INF, INF, INF],
+        [INF, INF, 4,   14,  10,  0,   2,   INF, INF],
+        [INF, INF, INF, INF, INF, 2,   0,   1,   6],
+        [8,   11,  INF, INF, INF, INF, 1,   0,   7],
+        [INF, INF, 2,   INF, INF, INF, 6,   7,   0]
+    ]
+    start_vertex = 0
+    distances, parents = dijkstra_shortest_paths(adjacency_matrix, start_vertex)
+
+    print("Матрица смежности (граф из лекции Дейкстры)")
+    print(f"Стартовая вершина: {start_vertex}")
+    for v in range(len(adjacency_matrix)):
+        dist = distances[v]
+        if dist == INF:
+            print(f"Вершина {v}: недостижима")
+        else:
+            path = reconstruct_path(parents, v)
+            print(f"Вершина {v}: расстояние = {dist}, путь = {path}")
+
+    print("\n---\nСписок смежности (неориентированный граф)")
+    adj_list = {
+        0: [(1, 4), (7, 8)],
+        1: [(0, 4), (2, 8), (7, 11)],
+        2: [(1, 8), (3, 7), (5, 4), (8, 2)],
+        3: [(2, 7), (4, 9), (5, 14)],
+        4: [(3, 9), (5, 10)],
+        5: [(2, 4), (3, 14), (4, 10), (6, 2)],
+        6: [(5, 2), (7, 1), (8, 6)],
+        7: [(0, 8), (1, 11), (6, 1), (8, 7)],
+        8: [(2, 2), (6, 6), (7, 7)]
+    }
+    distances2, parents2 = dijkstra_shortest_paths(adj_list, 0, n=9)
+    for v in range(9):
+        dist = distances2[v]
+        if dist == INF:
+            print(f"Вершина {v}: недостижима")
+        else:
+            path = reconstruct_path(parents2, v)
+            print(f"Вершина {v}: расстояние = {dist}, путь = {path}")
