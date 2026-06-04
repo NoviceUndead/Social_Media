@@ -1,0 +1,33 @@
+import networkx as nx
+
+n = 50
+G = nx.Graph()
+
+left_clique = list(range(0, 8))
+for i in left_clique:
+    for j in left_clique:
+        if i < j:
+            G.add_edge(i, j)
+
+for i in range(8, 19):
+    G.add_edge(i, i+1)
+
+right_clique = list(range(20, 29))
+for i in right_clique:
+    for j in right_clique:
+        if i < j:
+            G.add_edge(i, j)
+
+for i in range(29, 49):
+    G.add_edge(i, i+1)
+
+G.add_edge(7, 8)    
+G.add_edge(19, 20)  
+G.add_edge(28, 29)  
+
+cent = nx.eigenvector_centrality(G, max_iter=114, tol=1e-8)
+values = [cent[i] for i in range(n)]
+
+print("Значения центральности для вершин 0..49:")
+for i in range(n):
+    print(f"{i:2d}: {values[i]:.8f}")
